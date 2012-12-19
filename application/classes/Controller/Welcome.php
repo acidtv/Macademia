@@ -4,11 +4,7 @@ class Controller_Welcome extends Controller {
 
 	public function action_index()
 	{
-		$mpd = new Model_Mpd();
-
-		$currentsong = $mpd->currentsong();
-		
-		$this->response->body('hello, world!');
+		$this->response->body('<h1>Macademia</h1> <a href="/api/mpd/getstatus">status</a>');
 	}
 
 } // End Welcome
