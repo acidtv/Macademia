@@ -17,6 +17,9 @@ class Mpd_Command_List_Ok extends Mpd_Command_List {
 			return $this->result;
 		}
 
+		if ( ! array_key_exists($this->current, $this->commands))
+			throw new Exception('Ran out of commands before end of stream');
+
 		$command = $this->commands[$this->current];
 
 		if ($data == 'list_OK')
@@ -30,9 +33,6 @@ class Mpd_Command_List_Ok extends Mpd_Command_List {
 			// current command is finished parsing data, move on to the next
 			$this->result[$command->get_command_name()] = $result;
 			$this->current++;
-
-			if ( ! array_key_exists($this->current, $this->commands))
-				throw new Exception('Ran out of commands before end of stream');
 		}
 
 		// continue
