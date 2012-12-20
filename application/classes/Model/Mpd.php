@@ -1,6 +1,6 @@
 <?
 
-class Model_Mpd extends Model {
+class Model_Mpd {
 
 	private $mpd = null;
 
@@ -80,32 +80,30 @@ class Model_Mpd extends Model {
 		return $this->_execute($this->command_list);
 	}
 
+	/**
+	 * Turn off an output
+	 */
 	public function disableoutput($outputid = 0)
 	{
 		$outputid = intval($outputid);
-		return $this->_result($this->_command('disableoutput', new Mpd_Parser_Bool)->set_params($outputid));
+		return $this->_execute($this->_command('disableoutput', new Mpd_Parser_None)->set_params($outputid));
 	}
 
+	/**
+	 * Enable an output
+	 */
 	public function enableoutput($outputid = 0)
 	{
 		$outputid = intval($outputid);
-		return $this->mpd
-			->send_command('enableoutput', $outputid)
-			->parse_bool();
+		return $this->_execute($this->_command('enableoutput', new Mpd_Parser_None)->set_params($outputid));
 	}
 
 	public function kill()
 	{
-		return $this->mpd
-			->send_command('kill')
-			->parse_bool();
 	}
 
 	public function update($path)
 	{
-		return $this->mpd
-			->send_command('update', $path)
-			->parse_dict();
 	}
 
 	public function currentsong()

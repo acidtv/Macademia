@@ -1,9 +1,17 @@
 <?
 
+/**
+ * Parse returned data into an associative array
+ */
 class Mpd_Parser_Dict extends Mpd_Parser {
-
+	/**
+	 * Holds parsed data until we're funished parsing
+	 */
 	private $dict = array();
 
+	/**
+	 * Parse returned data
+	 */
 	public function parse($data)
 	{
 		if ($this->is_eof($data))
@@ -13,6 +21,7 @@ class Mpd_Parser_Dict extends Mpd_Parser {
 		}
 
 		$matches = array();
+		// match key and value pair
 		preg_match('/([a-z\-]+)\: (.*)$/Ui', $data, $matches);
 
 		if ($matches)

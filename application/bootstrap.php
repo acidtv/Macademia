@@ -22,7 +22,7 @@ else
  * @link http://kohanaframework.org/guide/using.configuration
  * @link http://www.php.net/manual/timezones
  */
-date_default_timezone_set('America/Chicago');
+date_default_timezone_set('Europe/Amsterdam');
 
 /**
  * Set the default locale.
@@ -90,7 +90,8 @@ if (isset($_SERVER['KOHANA_ENV']))
  * - boolean  expose      set the X-Powered-By header                        FALSE
  */
 Kohana::init(array(
-	'base_url'   => '/kohana/',
+	// 'base_url'   => '/kohana/',
+	'index_file' => '',
 ));
 
 /**
@@ -115,7 +116,7 @@ Kohana::modules(array(
 	// 'minion'     => MODPATH.'minion',     // CLI Tasks
 	// 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
 	// 'unittest'   => MODPATH.'unittest',   // Unit testing
-	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
+	'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	));
 
 /**
@@ -128,7 +129,7 @@ Route::set('default', '')
 		'action'     => 'index',
 	));
 
-Route::set('api', 'api/<controller>/<action>(/<id>)')
+Route::set('api', 'api/<controller>(/<action>)')
 	->defaults(array(
 		'directory' => 'api',
 	));
