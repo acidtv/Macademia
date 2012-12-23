@@ -1,9 +1,14 @@
 <?
 
 abstract class Mpd_Parser {
+	/**
+	 * Inheriting objects need to implement parse()
+	 */
 	abstract public function parse($response);
-	// abstract public function finished();
 
+	/**
+	 * Create new parser object of $type
+	 */
 	static function factory($type)
 	{
 		$class = 'Mpd_Parser_' . ucfirst($type);

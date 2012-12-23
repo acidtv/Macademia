@@ -1,7 +1,14 @@
 <?
 
+/**
+ * Class to implement the MPD command_list_ok_begin command.
+ * Output from this command includes the results for each command. This makes
+ * for easier parsing.
+ */
 class Mpd_Command_List_Ok extends Mpd_Command_List {
-
+	/**
+	 * The MPD list type
+	 */
 	protected $type = 'command_list_ok_begin';
 
 	/**
@@ -9,6 +16,9 @@ class Mpd_Command_List_Ok extends Mpd_Command_List {
 	 */
 	private $current = 0;
 
+	/**
+	 * Parse data to current command for parsing
+	 */
 	public function parse($data)
 	{
 		if ($data == 'OK')

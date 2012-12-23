@@ -10,6 +10,12 @@ class Controller_Api_Mpd extends Controller {
 		$this->model_mpd = new Model_Mpd($mpd);
 	}
 
+	/**
+	 * Override Controller::execute() to pass commands to
+	 * Model_Mpd while still providing access to controller methods.
+	 * 
+	 * TODO: See if this can be done with routes
+	 */
 	public function execute()
 	{
 		// Execute the "before action" method
