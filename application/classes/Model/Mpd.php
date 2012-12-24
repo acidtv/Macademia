@@ -142,7 +142,7 @@ class Model_Mpd {
 	 */
 	public function outputs()
 	{
-		throw new Exception('Not implemented yet')
+		throw new Exception('Not implemented yet');
 		// return $this->_execute($this->_command('outputs', Mpd_Parser::factory('outputs')));
 	}
 
@@ -165,6 +165,14 @@ class Model_Mpd {
 	/**
 	 * Get a list of available URL handlers.
 	 */
+	public function tagtypes()
+	{
+		return $this->_execute($this->_command('tagtypes', Mpd_Parser::factory('list')));
+	}
+
+	/**
+	 * Get a list of available URL handlers.
+	 */
 	public function urlhandlers()
 	{
 		return $this->_execute($this->_command('urlhandlers', Mpd_Parser::factory('list')));
@@ -182,8 +190,9 @@ class Model_Mpd {
 	/**
 	 * List all metadata of <metadata arg1>.
 	 */
-	public function list($arg1, $arg2, $search = '')
+	public function _list($arg1, $arg2, $search = '')
 	{
+		throw new Exception('FIXME');
 		return $this->_execute($this->_command('list', Mpd_Parser::factory('list'))
 			->set_params($arg1, $arg2, $search));
 	}
@@ -256,6 +265,14 @@ class Model_Mpd {
 	}
 
 	/**
+	 * Clears the current playlist, increment the playlist version by 1.
+	 */
+	public function clear()
+	{
+		return $this->_execute($this->_command('clear', Mpd_Parser::factory('none')));
+	}
+
+	/**
 	 * Displays the metadata of the current song.
 	 */
 	public function currentsong()
@@ -273,33 +290,259 @@ class Model_Mpd {
 	}
 
 	/**
-	 * Show which commands the current user has access to.
+	 * Delete song with <int songid> from playlist, increment the playlist version by 1.
 	 */
-	public function commands()
+	public function deleteid($song)
 	{
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list'))
+			->set_params($song));
 	}
 
 	/**
-	 * Show which commands the current user has access to.
+	 * Load the playlist <string_name> from the playlist directory, 
+	 * increment the playlist version by the number of songs added.
 	 */
-	public function commands()
+	public function load($playlist)
 	{
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command('load', Mpd_Parser::factory('none'))
+			->set_params($playlist));
 	}
 
 	/**
-	 * Show which commands the current user has access to.
+	 * Rename the playlist name to new_name.
 	 */
-	public function commands()
+	public function rename($name, $new_name)
 	{
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command('rename', Mpd_Parser::factory('none'))
+			->set_params($name, $new_name));
 	}
 
-	public function currentsong()
+	/**
+	 * Move song at <int from> to <int to> in the playlist, 
+	 * increment the playlist version by 1.
+	 */
+	public function move($from, $to)
 	{
-		return $this->_execute($this->_command('currentsong', Mpd_Parser::factory('dict')));
+		return $this->_execute($this->_command('move', Mpd_Parser::factory('none'))
+			->set_params($from, $to));
 	}
 
+	/**
+	 * Move song <int songid from> to <int to> in the playlist, 
+	 * increment the playlist version by 1.
+	 */
+	public function moveid($from, $to)
+	{
+		return $this->_execute($this->_command('moveid', Mpd_Parser::factory('none'))
+			->set_params($from, $to));
+	}
+
+	/**
+	 * Display metadata for songs in the playlist.
+	 */
+	public function playlistinfo($song = '')
+	{
+		return $this->_execute($this->_command('playlistinfo', Mpd_Parser::factory('dict'))
+			->set_params($song));
+	}
+
+	/**
+	 * Display metadata for songs in the playlist.
+	 */
+	public function playlistid($song = '')
+	{
+		return $this->_execute($this->_command('playlistid', Mpd_Parser::factory('dict'))
+			->set_params($song));
+	}
+
+	/**
+	 * Displays changed songs currently in the playlist since <playlist version>.
+	 */
+	public function plchanges($version)
+	{
+		return $this->_execute($this->_command('plchanges', Mpd_Parser::factory('list'))
+			->set_params($version));
+	}
+
+	/**
+	 * Displays changed songs currently in the 
+	 * playlist since <playlist version>, but 
+	 * only return the position and the id.
+	 */
+	public function plchangesposid($version)
+	{
+		return $this->_execute($this->_command('plchangesposid', Mpd_Parser::factory('list'))
+			->set_params($version));
+	}
+
+	/**
+	 * Removes the <string playlist name> from the playlist directory.
+	 */
+	public function rm($name)
+	{
+		return $this->_execute($this->_command('rm', Mpd_Parser::factory('none'))
+			->set_params($name));
+	}
+
+	/**
+	 * Saves the current playlist to <string playlist name> in the playlist directory.
+	 */
+	public function save($name)
+	{
+		return $this->_execute($this->_command('save', Mpd_Parser::factory('none'))
+			->set_params($name));
+	}
+
+	/**
+	 * Shuffles the current playlist, increments playlist version by 1.
+	 */
+	public function shuffle()
+	{
+		return $this->_execute($this->_command('shuffle', Mpd_Parser::factory('none')));
+	}
+
+	/**
+	 * Swap positions of <int song1> and <int song2>, increments playlist version by 1.
+	 */
+	public function swap($song1, $song2)
+	{
+		return $this->_execute($this->_command('swap', Mpd_Parser::factory('none'))
+			->set_params($song1, $song2));
+	}
+
+	/**
+	 * Swap positions of songs by song id's of <songid1> and <songid2>, 
+	 * increments playlist version by 1.
+	 */
+	public function swapid($song1, $song2)
+	{
+		return $this->_execute($this->_command('swapid', Mpd_Parser::factory('dict')));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List songs in <playlist name>
+	 */
+	public function listplaylistinfo($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('fixme'))
+			->set_params($name));
+	}
+
+	/**
+	 * Add <path> to <playlist name>
+	 */
+	public function playlistadd($playlist, $path)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($playlist, $path));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
+
+	/**
+	 * List files in <playlist name>
+	 */
+	public function listplaylist($name)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($name));
+	}
 
 }
