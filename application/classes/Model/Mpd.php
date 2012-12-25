@@ -2,15 +2,31 @@
 
 class Model_Mpd {
 
+	/**
+	 * MPD Connection object
+	 */
 	private $mpd = null;
 
+	/**
+	 * Queued commands
+	 */
 	private $command_list = null;
+
+	/**
+	 * Available scope specifiers
+	 */
+	private $scopes = array('filename', 'any', 'artist', 'album', 'title', 'track', 'name', 'genre', 'date', 'composer', 'performer', 'comment', 'disc');
 
 	public function __construct(Mpd $mpd)
 	{
 		$this->mpd = $mpd;
 	}
 
+	/**
+	 * Sends commands to mpd.
+	 * If a command list was started commands are queued and
+	 * send to the server upon receiving a second mpd_command_list object.
+	 */
 	private function _execute(Mpd_Command $command)
 	{
 		if ( ! $command instanceof Mpd_Command_List && ! $this->command_list)
@@ -57,24 +73,55 @@ class Model_Mpd {
 		return new Mpd_Command_Single($command, $parser);
 	}
 
+	/**
+	 * Dump all scheduled commands
+	 */
 	public function _reset()
 	{
 		$this->command_list = null;
 		return $this;
 	}
 
+	/**
+	 * Check if $scope is a valid scope specifier
+	 */
+	private function _check_scope($scope)
+	{
+		$scope = trim($scope);
+
+		if ( ! $scope)
+			return true;
+
+		if ( ! in_array($scope, $this->scopes))
+			throw new Mpd_Exception_Scope('Invalid scope specified: ' . $scope);
+
+		return true;
+	}
+
 	/***********/
 
+	/**
+	 * Start a new command list. 
+	 * Output will not be seperated by command or parsed in any other way.
+	 */
 	public function command_list_begin()
 	{
 		return $this->_execute(new Mpd_Command_List());
 	}
 
+	/**
+	 * Start a new command list.
+	 * Output will be grouped by command and parsed with the
+	 * appropriate parser.
+	 */
 	public function command_list_ok_begin()
 	{
 		return $this->_execute(new Mpd_Command_List_Ok());
 	}
 
+	/**
+	 * Marks the end of the command list and sends commands to mpd.
+	 */
 	public function command_list_end()
 	{
 		return $this->_execute($this->command_list);
@@ -181,20 +228,26 @@ class Model_Mpd {
 	/**
 	 * Finds songs in the database with a case sensitive, exact match to <string what>.
 	 */
-	public function find($type, $what)
+	public function find($scope, $what)
 	{
+		$this->_check_scope($scope);
+
 		return $this->_execute($this->_command('find', Mpd_Parser::factory('dict'))
-			->set_params(array($type, $what)));
+			->set_params($scope, $what));
 	}
 
 	/**
 	 * List all metadata of <metadata arg1>.
 	 */
-	public function _list($arg1, $arg2, $search = '')
+	public function _list($scope1, $scope2 = '', $search = '')
 	{
 		throw new Exception('FIXME');
+
+		$this->_check_scope($scope1);
+		$this->_check_scope($scope2);
+
 		return $this->_execute($this->_command('list', Mpd_Parser::factory('list'))
-			->set_params($arg1, $arg2, $search));
+			->set_params($scope1, $scope1, $search));
 	}
 
 	/**
@@ -228,11 +281,10 @@ class Model_Mpd {
 	/**
 	 * Finds songs in the database with a case insensitive match to <string what>.
 	 */
-	public function search($type, $what)
+	public function search($scope, $what)
 	{
-		throw new Exception('Not implemented yet.');
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list'))
-			->set_params($type, $what));
+		return $this->_execute($this->_command('search', Mpd_Parser::factory('multidict'))
+			->set_params($scope, $what));
 	}
 
 	/**
@@ -447,102 +499,193 @@ class Model_Mpd {
 	}
 
 	/**
-	 * List files in <playlist name>
+	 * Clear <playlist name>
 	 */
-	public function listplaylist($name)
+	public function playlistclear($name)
 	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($name));
 	}
 
 	/**
-	 * List files in <playlist name>
+	 * Delete <song id> from <playlist name>
 	 */
-	public function listplaylist($name)
+	public function playlistdelete($name, $song)
 	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($name, $song));
+	}
+
+	/**
+	 * Move <song id> in <playlist name> to <position>
+	 */
+	public function playlistmove($playlist, $from, $to)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($playlist, $from, $to));
+	}
+
+	/**
+	 * Search for songs in the current playlist with strict matching
+	 */
+	public function playlistfind($scope, $query)
+	{
+		$this->_check_scope($scope);
+
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('FIXME'))
+			->set_params($scope, $query));
+	}
+
+	/**
+	 * Search case-insensitively with partial matches for songs in the current playlist
+	 */
+	public function playlistsearch($scope, $query)
+	{
+		$this->_check_scope($scope);
+
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('FIXME'))
+			->set_params($scope, $query));
+	}
+
+	/**
+	 * Sets crossfading (mixing) between songs.
+	 */
+	public function crossfade($seconds)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($seconds));
+	}
+
+	/**
+	 * Plays next song in playlist.
+	 */
+	public function next()
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
+	}
+
+	/**
+	 * Toggle pause / resume playing.
+	 */
+	public function pause($pause)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($pause));
+	}
+
+	/**
+	 * Begin playing the playlist.
+	 */
+	public function play($song = '')
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($song));
+	}
+
+	/**
+	 * Begin playing playlist.
+	 */
+	public function playid($song)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($song));
+	}
+
+	/**
+	 * Plays previous song in playlist
+	 */
+	public function previous()
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
+	}
+
+	/**
+	 * Sets 'random' mode, which plays the playlist in a random order
+	 */
+	public function random($state)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($state));
+	}
+
+	/**
+	 * Repeat the playlist after all songs have been used.
+	 */
+	public function repeat($state)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($state));
+	}
+
+	/**
+	 * Skip to a specified point in a song on the playlist
+	 */
+	public function seek($song, $time = 0)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($song, $time));
+	}
+
+	/**
+	 * Skip to a specified point in a song on the playlist
+	 */
+	public function seekid($song, $time = 0)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($song, $time));
+	}
+
+	/**
+	 * Set the volume
+	 */
+	public function setvol($volume)
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($volume));
+	}
+
+	/**
+	 * To halt playing
+	 */
+	public function stop()
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
+	}
+
+	/**
+	 * Clear the current error message in status 
+	 * (this is also accomplished by any command that starts playback).
+	 */
+	public function clearerror()
+	{
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($name));
 	}
 
 	/**
-	 * List files in <playlist name>
+	 * Close the connection with the MPD host
 	 */
-	public function listplaylist($name)
+	public function close()
 	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
 	}
 
 	/**
-	 * List files in <playlist name>
+	 * This is used for authentication with the server, 
+	 * this is enabled or disabled by the administrator 
+	 * in the MPD configuration file.
 	 */
-	public function listplaylist($name)
+	public function password($password)
 	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
+			->set_params($password));
 	}
 
 	/**
-	 * List files in <playlist name>
+	 * To return OK (basically to show some life)
 	 */
-	public function listplaylist($name)
+	public function ping()
 	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
 	}
-
-	/**
-	 * List files in <playlist name>
-	 */
-	public function listplaylist($name)
-	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
-	}
-
-	/**
-	 * List files in <playlist name>
-	 */
-	public function listplaylist($name)
-	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
-	}
-
-	/**
-	 * List files in <playlist name>
-	 */
-	public function listplaylist($name)
-	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
-	}
-
-	/**
-	 * List files in <playlist name>
-	 */
-	public function listplaylist($name)
-	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
-	}
-
-	/**
-	 * List files in <playlist name>
-	 */
-	public function listplaylist($name)
-	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
-	}
-
-	/**
-	 * List files in <playlist name>
-	 */
-	public function listplaylist($name)
-	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($name));
-	}
-
 }
