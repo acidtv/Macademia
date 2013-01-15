@@ -13,6 +13,8 @@ class Mpd_Parser_Multidict extends Mpd_Parser_Dict
 	public function sep($sep)
 	{
 		$this->sep = $sep;
+
+		return $this;
 	}
 
 	/**

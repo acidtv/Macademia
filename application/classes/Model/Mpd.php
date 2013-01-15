@@ -133,7 +133,7 @@ class Model_Mpd {
 	public function disableoutput($outputid = 0)
 	{
 		$outputid = intval($outputid);
-		return $this->_execute($this->_command('disableoutput', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($outputid));
 	}
 
@@ -143,7 +143,7 @@ class Model_Mpd {
 	public function enableoutput($outputid = 0)
 	{
 		$outputid = intval($outputid);
-		return $this->_execute($this->_command('enableoutput', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($outputid));
 	}
 
@@ -152,7 +152,7 @@ class Model_Mpd {
 	 */
 	public function kill()
 	{
-		return $this->_execute($this->_command('kill', Mpd_Parser::factory('none')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Model_Mpd {
 	 */
 	public function update($path = '')
 	{
-		return $this->_execute($this->_command('update', Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
 			->set_params($path));
 	}
 
@@ -173,7 +173,7 @@ class Model_Mpd {
 	 */
 	public function status()
 	{
-		return $this->_execute($this->_command('status', Mpd_Parser::factory('dict')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict')));
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Model_Mpd {
 	 */
 	public function stats()
 	{
-		return $this->_execute($this->_command('stats', Mpd_Parser::factory('dict')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict')));
 	}
 
 	/**
@@ -189,8 +189,8 @@ class Model_Mpd {
 	 */
 	public function outputs()
 	{
-		throw new Exception('Not implemented yet');
-		// return $this->_execute($this->_command('outputs', Mpd_Parser::factory('outputs')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('multidict')
+			->sep('outputid')));
 	}
 
 	/**
@@ -198,7 +198,7 @@ class Model_Mpd {
 	 */
 	public function commands()
 	{
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list')));
 	}
 
 	/**
@@ -206,7 +206,7 @@ class Model_Mpd {
 	 */
 	public function notcommands()
 	{
-		return $this->_execute($this->_command('notcommands', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list')));
 	}
 
 	/**
@@ -214,7 +214,7 @@ class Model_Mpd {
 	 */
 	public function tagtypes()
 	{
-		return $this->_execute($this->_command('tagtypes', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list')));
 	}
 
 	/**
@@ -222,7 +222,7 @@ class Model_Mpd {
 	 */
 	public function urlhandlers()
 	{
-		return $this->_execute($this->_command('urlhandlers', Mpd_Parser::factory('list')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list')));
 	}
 
 	/**
@@ -230,22 +230,16 @@ class Model_Mpd {
 	 */
 	public function find($scope, $what)
 	{
-		$this->_check_scope($scope);
-
-		return $this->_execute($this->_command('find', Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
 			->set_params($scope, $what));
 	}
 
 	/**
 	 * List all metadata of <metadata arg1>.
+	 * FIXME: php doesn't support a list() method in a class
 	 */
-	public function _list($scope1, $scope2 = '', $search = '')
+	public function getlist($scope1, $scope2 = '', $search = '')
 	{
-		throw new Exception('FIXME');
-
-		$this->_check_scope($scope1);
-		$this->_check_scope($scope2);
-
 		return $this->_execute($this->_command('list', Mpd_Parser::factory('list'))
 			->set_params($scope1, $scope1, $search));
 	}
@@ -255,7 +249,7 @@ class Model_Mpd {
 	 */
 	public function listall($path = '')
 	{
-		return $this->_execute($this->_command('listall', Mpd_Parser::factory('list'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list'))
 			->set_params($path));
 	}
 
@@ -264,8 +258,7 @@ class Model_Mpd {
 	 */
 	public function listallinfo($path)
 	{
-		throw new Exception('Not implemented yet');
-		return $this->_execute($this->_command('listallinfo', Mpd_Parser::factory('list'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('multidict'))
 			->set_params($path));
 	}
 
@@ -274,7 +267,7 @@ class Model_Mpd {
 	 */
 	public function lsinfo($directory)
 	{
-		return $this->_execute($this->_command('lsinfo', Mpd_Parser::factory('list'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list'))
 			->set_params($directory));
 	}
 
@@ -283,17 +276,17 @@ class Model_Mpd {
 	 */
 	public function search($scope, $what)
 	{
-		return $this->_execute($this->_command('search', Mpd_Parser::factory('multidict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('multidict'))
 			->set_params($scope, $what));
 	}
 
 	/**
 	 * Retrieve the number of songs and their total playtime in the database matching <query>.
 	 */
-	public function count($scope, $query)
+	public function count($scope, $what)
 	{
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list'))
-			->set_params($scope, $query));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
+			->set_params($scope, $what));
 	}
 
 	/**
@@ -303,7 +296,7 @@ class Model_Mpd {
 	 */
 	public function add($file)
 	{
-		return $this->_execute($this->_command('add', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($file));
 	}
 
@@ -312,7 +305,7 @@ class Model_Mpd {
 	 */
 	public function addid($file, $position = '')
 	{
-		return $this->_execute($this->_command('addid', Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
 			->set_params($file, $position));
 	}
 
@@ -321,7 +314,7 @@ class Model_Mpd {
 	 */
 	public function clear()
 	{
-		return $this->_execute($this->_command('clear', Mpd_Parser::factory('none')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
 	}
 
 	/**
@@ -329,7 +322,7 @@ class Model_Mpd {
 	 */
 	public function currentsong()
 	{
-		return $this->_execute($this->_command('currentsong', Mpd_Parser::factory('dict')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict')));
 	}
 
 	/**
@@ -337,7 +330,7 @@ class Model_Mpd {
 	 */
 	public function delete($song)
 	{
-		return $this->_execute($this->_command('delete', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($song));
 	}
 
@@ -346,7 +339,7 @@ class Model_Mpd {
 	 */
 	public function deleteid($song)
 	{
-		return $this->_execute($this->_command('commands', Mpd_Parser::factory('list'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list'))
 			->set_params($song));
 	}
 
@@ -356,7 +349,7 @@ class Model_Mpd {
 	 */
 	public function load($playlist)
 	{
-		return $this->_execute($this->_command('load', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($playlist));
 	}
 
@@ -365,7 +358,7 @@ class Model_Mpd {
 	 */
 	public function rename($name, $new_name)
 	{
-		return $this->_execute($this->_command('rename', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($name, $new_name));
 	}
 
@@ -375,7 +368,7 @@ class Model_Mpd {
 	 */
 	public function move($from, $to)
 	{
-		return $this->_execute($this->_command('move', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($from, $to));
 	}
 
@@ -385,16 +378,16 @@ class Model_Mpd {
 	 */
 	public function moveid($from, $to)
 	{
-		return $this->_execute($this->_command('moveid', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($from, $to));
 	}
 
 	/**
 	 * Display metadata for songs in the playlist.
 	 */
-	public function playlistinfo($song = '')
+	public function playlistinfo()
 	{
-		return $this->_execute($this->_command('playlistinfo', Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
 			->set_params($song));
 	}
 
@@ -403,7 +396,7 @@ class Model_Mpd {
 	 */
 	public function playlistid($song = '')
 	{
-		return $this->_execute($this->_command('playlistid', Mpd_Parser::factory('dict'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
 			->set_params($song));
 	}
 
@@ -412,7 +405,7 @@ class Model_Mpd {
 	 */
 	public function plchanges($version)
 	{
-		return $this->_execute($this->_command('plchanges', Mpd_Parser::factory('list'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list'))
 			->set_params($version));
 	}
 
@@ -423,7 +416,7 @@ class Model_Mpd {
 	 */
 	public function plchangesposid($version)
 	{
-		return $this->_execute($this->_command('plchangesposid', Mpd_Parser::factory('list'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('list'))
 			->set_params($version));
 	}
 
@@ -432,7 +425,7 @@ class Model_Mpd {
 	 */
 	public function rm($name)
 	{
-		return $this->_execute($this->_command('rm', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($name));
 	}
 
@@ -441,7 +434,7 @@ class Model_Mpd {
 	 */
 	public function save($name)
 	{
-		return $this->_execute($this->_command('save', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($name));
 	}
 
@@ -450,7 +443,7 @@ class Model_Mpd {
 	 */
 	public function shuffle()
 	{
-		return $this->_execute($this->_command('shuffle', Mpd_Parser::factory('none')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none')));
 	}
 
 	/**
@@ -458,7 +451,7 @@ class Model_Mpd {
 	 */
 	public function swap($song1, $song2)
 	{
-		return $this->_execute($this->_command('swap', Mpd_Parser::factory('none'))
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('none'))
 			->set_params($song1, $song2));
 	}
 
@@ -468,7 +461,7 @@ class Model_Mpd {
 	 */
 	public function swapid($song1, $song2)
 	{
-		return $this->_execute($this->_command('swapid', Mpd_Parser::factory('dict')));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict')));
 	}
 
 	/**
