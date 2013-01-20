@@ -26,7 +26,8 @@
 
 	<script type="text/template" id="playlist-item">
 		<td><%= Artist %> - <%= Title %></td>
-		<td><%= Time %></td>
+		<td id="time"><%= _Time %></td>
+		<td><%= Album %></td>
 	</script>
 	<script language="javascript" src="/js/lib/underscore.min.js"></script>
 	<script language="javascript" src="/js/lib/jquery.min.js"></script>

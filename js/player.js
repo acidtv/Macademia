@@ -6,6 +6,10 @@ var app = app || {};
 		currentsong: {},
 		status: {},
 
+		initialize: function() {
+			this.update();
+		},
+
 		update: function() {
 			$.getJSON('/api/mpd/status', function(response) {
 				self = app.PlayerModel;
@@ -38,6 +42,11 @@ var app = app || {};
 
 (function() {
 	app.PlaylistSongModel = Backbone.Model.extend({
+		idAttribute: 'Id',
+
+		markAsCurrentSong: function() {
+			this.trigger('currentsong', this);
+		}
 	});
 }());
 
@@ -47,10 +56,15 @@ var app = app || {};
 		url: '/api/mpd/playlistinfo',
 
 		initialize: function() {
+			this.listenTo(app.PlayerModel, 'player:newsong', this.markCurrentSong);
 		},
 
 		parse: function(response) {
 			return _.values(response.data);
+		},
+
+		markCurrentSong: function(player) {
+			this.get(player.currentsong.Id).markAsCurrentSong();
 		}
 	});
 
@@ -87,12 +101,32 @@ var app = app || {};
 
 		template: _.template($('#playlist-item').html()),
 
+		events: {
+			'dblclick': 'playThisSong'
+		},
+
 		initialize: function() {
+			this.listenTo(this.model, 'currentsong', this.markAsCurrentSong);
+		},
+
+		test: function() {
+			console.log(this.model);
 		},
 
 		render: function() {
-			this.$el.html(this.template(this.model.toJSON()));
+			data = this.model.toJSON();
+			data._Time = Math.floor(data.Time/60) + ':' + (data.Time%60);
+			this.$el.html(this.template(data));
 			return this;
+		},
+
+		playThisSong: function() {
+			// app.PlayerModel.
+		},
+
+		markAsCurrentSong: function() {
+			this.$el.siblings().removeClass('selected');
+			this.$el.addClass('selected');
 		}
 	});
 }());

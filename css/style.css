@@ -26,3 +26,11 @@ body {
 #playlist {
 	width: 700px;
 }
+
+#playlist tr.selected * {
+	font-weight: bold;
+}
+
+#playlist tr #time {
+	text-align: right;
+}
