@@ -387,8 +387,8 @@ class Model_Mpd {
 	 */
 	public function playlistinfo()
 	{
-		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('dict'))
-			->set_params($song));
+		return $this->_execute($this->_command(__FUNCTION__, Mpd_Parser::factory('multidict'))
+			->set_params());
 	}
 
 	/**

@@ -1,0 +1,28 @@
+body {
+	font-family: Arial;
+}
+
+#player {
+	margin-bottom: 20px;
+}
+
+#player #current {
+	font-weight: bold;
+}
+
+#progress {
+	width: 300px;
+	height: 10px;
+	border: 1px solid black;
+}
+
+#progress #bar {
+	border: 0px;
+	height: 100%;
+	width: 70px;
+	background-color: #6666DD;
+}
+
+#playlist {
+	width: 700px;
+}

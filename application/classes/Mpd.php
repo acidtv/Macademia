@@ -15,8 +15,8 @@ class Mpd {
 
 	public function connect()
 	{
-		$this->sock = fsockopen('127.0.0.1', '6600', $this->conn_errno, $this->conn_errstr, 5);
-		// $this->sock = fsockopen('192.168.178.40', '6600', $this->conn_errno, $this->conn_errstr, 5);
+		// $this->sock = fsockopen('127.0.0.1', '6600', $this->conn_errno, $this->conn_errstr, 5);
+		$this->sock = fsockopen('192.168.178.40', '6600', $this->conn_errno, $this->conn_errstr, 5);
 
 		if ($this->conn_errstr)
 		{
